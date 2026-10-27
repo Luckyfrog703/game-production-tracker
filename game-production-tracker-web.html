@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en" data-theme="saas">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:,">
+<title>Game Production Tracker — Mecha Garden</title>
+<style>
+:root{ --radius:14px; }
+*{box-sizing:border-box}
+html{scrollbar-gutter:stable}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;transition:background .25s,color .25s}
+a{color:var(--accent)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+
+/* THEMES */
+[data-theme="saas"]{
+  --bg:#f6f7f9; --surface:#fff; --surface2:#f1f2f6; --text:#111827; --muted:#6b7280; --line:#e5e7eb;
+  --accent:#4f46e5; --accentText:#fff; --accentSoft:#eef2ff;
+  --green:#15803d; --amber:#b45309; --red:#dc2626; --shadow:0 1px 3px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);
+  --cardShadow:none; --borderW:1px; --headFont:Inter,system-ui,sans-serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:light;
+}
+[data-theme="bold"]{
+  --bg:#fff6d6; --surface:#ffffff; --surface2:#ffeaa7; --text:#1a1a1a; --muted:#5c4a00; --line:#1a1a1a;
+  --accent:#ff5a1f; --accentText:#fff; --accentSoft:#ffe4d6;
+  --green:#00a651; --amber:#e67e00; --red:#e11d48; --shadow:5px 5px 0 #1a1a1a; --cardShadow:4px 4px 0 #1a1a1a;
+  --borderW:2px; --headFont:"Arial Black",Inter,system-ui,sans-serif; --mono:ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --bg:#0a0a0f; --surface:#14141c; --surface2:#1c1c28; --text:#f4f4f5; --muted:#a1a1aa; --line:#27272a;
+  --accent:#b6f09c; --accentText:#0a0a0f; --accentSoft:#1e2e14;
+  --green:#a3e635; --amber:#facc15; --red:#fb7185; --shadow:0 0 0 1px rgba(255,255,255,.06),0 12px 40px rgba(0,0,0,.5);
+  --cardShadow:0 0 18px rgba(182,240,156,.08); --borderW:1px; --headFont:Inter,system-ui,sans-serif; --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+}
+[data-theme="bold"] body{font-weight:600}
+[data-theme="bold"] h1,[data-theme="bold"] h2{letter-spacing:-.02em;text-transform:uppercase}
+[data-theme="dark"] .card,[data-theme="dark"] .stat{backdrop-filter:blur(10px);background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+
+.wrap{max-width:1220px;margin:0 auto;padding:20px 18px 56px}
+.topbar{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--accent);margin:0 0 4px}
+h1{font-family:var(--headFont);font-size:clamp(28px,5vw,44px);line-height:.95;margin:0;letter-spacing:-.03em}
+.tagline{color:var(--muted);margin:8px 0 0;max-width:620px;font-size:15.5px}
+.themeBox{background:var(--surface);border:var(--borderW) solid var(--line);border-radius:999px;padding:6px;display:flex;gap:4px;box-shadow:var(--cardShadow)}
+.themeBox button{border:0;background:transparent;padding:8px 12px;border-radius:999px;font-weight:700;font-size:13px;color:var(--muted)}
+.themeBox button.active{background:var(--accent);color:var(--accentText)}
+.demoNote{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--accentSoft);border:var(--borderW) solid var(--line);border-radius:var(--radius);padding:10px 12px;font-size:13.5px;margin-bottom:16px}
+.demoNote b{color:var(--accent)}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.controls select,.controls input{padding:10px 12px;border-radius:10px;border:var(--borderW) solid var(--line);background:var(--surface);color:var(--text)}
+.btn{border:var(--borderW) solid var(--line);background:var(--surface);color:var(--text);padding:10px 14px;border-radius:999px;font-weight:700;box-shadow:var(--cardShadow)}
+.btn.primary{background:var(--accent);color:var(--accentText);border-color:var(--accent)}
+.btn.small{padding:6px 10px;font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+@media(max-width:800px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat,.card{background:var(--surface);border:var(--borderW) solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.stat small{color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:11px}
+.stat strong{display:block;font-size:28px;line-height:1;margin:6px 0 4px;font-family:var(--mono)}
+.stat span{color:var(--muted);font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+section{margin-top:18px}
+.secHead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.secHead h2{margin:0;font-size:19px;font-family:var(--headFont)}
+.secHead p{margin:2px 0 0;color:var(--muted);font-size:13.5px}
+.progress{height:10px;background:var(--surface2);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.progress i{display:block;height:100%;background:var(--accent)}
+.mile{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.mile:first-of-type{border-top:0}
+.dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);border:var(--borderW) solid var(--line);flex:0 0 auto;font-size:13px}
+.mile.done .dot{background:var(--green);color:#fff;border-color:var(--green)}
+.mile.active .dot{background:var(--accent);color:var(--accentText)}
+.board{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:start}
+@media(max-width:980px){.board{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.board{grid-template-columns:1fr}}
+.col{background:var(--surface);border:var(--borderW) solid var(--line);border-radius:var(--radius);padding:10px;min-height:140px;box-shadow:var(--shadow)}
+.col h3{margin:2px 2px 10px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;display:flex;justify-content:space-between}
+.task{background:var(--surface2);border:var(--borderW) solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;cursor:grab}
+.task:active{cursor:grabbing}
+.task b{font-size:14px;line-height:1.3;display:block}
+.meta{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.5}
+.pill{display:inline-block;padding:2px 7px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border:1px solid var(--line);background:var(--surface)}
+.pill.blocker{background:#fee2e2;color:#991b1b}.pill.critical{background:#ffedd5;color:#9a3412}.pill.major{background:#fef9c3;color:#854d0e}.pill.minor{background:#dbeafe;color:#1e40af}
+[data-theme="dark"] .pill{color:#111}
+.rowItem{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.rowItem:first-of-type{border-top:0}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.iconBtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700}
+dialog{border:var(--borderW) solid var(--line);background:var(--surface);color:var(--text);border-radius:16px;padding:0;width:min(560px,92vw);box-shadow:0 24px 60px rgba(0,0,0,.25)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.form{padding:18px}
+.form h3{margin:0 0 12px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;padding:10px 12px;border:var(--borderW) solid var(--line);border-radius:10px;background:var(--surface);color:var(--text)}
+.foot{font-size:12.5px;color:var(--muted);text-align:center;margin-top:22px;line-height:1.6}
+.empty{color:var(--muted);font-size:13px;padding:10px;border:1px dashed var(--line);border-radius:10px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <p class="eyebrow">Petalforge Studio • Production</p>
+      <h1 id="projTitle">Mecha Garden</h1>
+      <p class="tagline">Milestones, tasks, builds, and bugs — the whole production at a glance.</p>
+      <p class="meta" id="projMeta" style="font-size:13px"></p>
+    </div>
+    <div>
+      <div class="themeBox" role="group" aria-label="Design vibe">
+        <button data-theme-btn="saas">○ Clean SaaS</button>
+        <button data-theme-btn="bold">⬢ Bold Consumer</button>
+        <button data-theme-btn="dark">◐ Dark Premium</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);text-align:right;margin:6px 4px 0">Same app, three vibes — pick your favorite</p>
+    </div>
+  </div>
+
+  <div class="demoNote"><span>🌱 <b>Demo project — fictional.</b> “Mecha Garden” by Petalforge Studio is made-up sample data so you can see the tracker working. Edit anything, delete it, or start your own project. Everything saves in this browser only.</span></div>
+
+  <div class="controls">
+    <label style="font-weight:700;font-size:13px">PROJECT <select id="projectSel"></select></label>
+    <button class="btn primary" id="addProjectBtn">+ New project</button>
+    <button class="btn" id="editProjectBtn">Edit project</button>
+    <button class="btn" id="resetBtn">Reset to demo</button>
+    <span style="margin-left:auto;font-size:13px;color:var(--muted)" id="saveNote">Saved in this browser</span>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <!-- Milestones -->
+  <section>
+    <div class="secHead"><div><h2>Milestones</h2><p>From prototype to ship — where the dates actually land.</p></div><button class="btn small primary" data-add="milestone">+ Add milestone</button></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px"><span id="mileLabel"></span><span id="milePct"></span></div>
+      <div class="progress"><i id="mileBar"></i></div>
+      <div id="milestones"></div>
+    </div>
+  </section>
+
+  <!-- Board -->
+  <section>
+    <div class="secHead"><div><h2>Task board</h2><p>Drag cards between columns, or use Move on each card. 5 stages, no hiding.</p></div><button class="btn small primary" data-add="task">+ Add task</button></div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <div class="grid2">
+    <section>
+      <div class="secHead"><div><h2>Build log</h2><p>What QA and playtesters actually have.</p></div><button class="btn small primary" data-add="build">+ Add build</button></div>
+      <div class="card" id="builds"></div>
+    </section>
+    <section>
+      <div class="secHead"><div><h2>Bug triage</h2><p>Open bugs by severity — blockers first.</p></div><button class="btn small primary" data-add="bug">+ Add bug</button></div>
+      <div class="card" id="bugs"></div>
+    </section>
+  </div>
+
+  <section>
+    <div class="secHead"><div><h2>Decision log</h2><p>Calls you made, and why — so future-you doesn’t relitigate them.</p></div><button class="btn small primary" data-add="decision">+ Add decision</button></div>
+    <div class="card" id="decisions"></div>
+  </section>
+
+  <p class="foot">Game Production Tracker — static rebuild for GitHub Pages. No account, no server. Your edits live in this browser’s localStorage.<br>Demo data is fictional: Mecha Garden / Petalforge Studio are invented for this portfolio demo.</p>
+</div>
+
+<div id="confirmBar" style="display:none;position:sticky;top:10px;z-index:50;background:var(--surface);border:var(--borderW) solid var(--red);border-radius:12px;padding:12px 14px;margin-bottom:14px;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:var(--shadow)"><span id="confirmMsg" style="font-weight:700;flex:1"></span><button class="btn small" id="confirmNo">Cancel</button><button class="btn small primary" id="confirmYes">Yes, do it</button></div>
+
+<dialog id="dlg"><form method="dialog" class="form" id="dlgForm">
+  <h3 id="dlgTitle">Edit</h3>
+  <div id="dlgFields"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
+    <button class="btn" value="cancel" formnovalidate>Cancel</button>
+    <button class="btn primary" id="dlgSave" value="save">Save</button>
+  </div>
+</form></dialog>
+
+<script>
+var COLS=[{id:'backlog',label:'Backlog'},{id:'todo',label:'To Do'},{id:'inprogress',label:'In Progress'},{id:'review',label:'Review'},{id:'done',label:'Done'}];
+var SEV=['blocker','critical','major','minor'];
+function uid(){return Math.random().toString(36).slice(2,9)}
+function seed(){
+  var pid='mecha';
+  return {
+    current:pid,
+    projects:[{id:pid,name:'Mecha Garden',studio:'Petalforge Studio',genre:'Cozy mech gardening sim',platform:'PC • Switch',release:'2027-05-14',phase:'Vertical Slice'}],
+    milestones:[
+      {id:uid(),projectId:pid,name:'Prototype',due:'2026-09-12',status:'done',notes:'Core planting + watering loop proved fun in greybox.'},
+      {id:uid(),projectId:pid,name:'Vertical Slice',due:'2026-12-18',status:'in-progress',notes:'One polished biome (Overgrown Atrium), full loop, save/load.'},
+      {id:uid(),projectId:pid,name:'Alpha',due:'2027-02-26',status:'upcoming',notes:'All biomes playable start-to-finish, feature complete.'},
+      {id:uid(),projectId:pid,name:'Beta & Localization',due:'2027-04-09',status:'upcoming',notes:'Content complete, localization in, cert prep.'}
+    ],
+    tasks:[
+      {id:uid(),projectId:pid,title:'Design co-op greenhouse puzzle variants',owner:'Mina — Design',col:'backlog',tag:'Design'},
+      {id:uid(),projectId:pid,title:'Localize VO casting brief for Beta',owner:'Producer',col:'backlog',tag:'Production'},
+      {id:uid(),projectId:pid,title:'Rig Mech Gardener companion bot',owner:'Theo — Art',col:'todo',tag:'Art'},
+      {id:uid(),projectId:pid,title:'Spec economy tuning for seed shop',owner:'Mina — Design',col:'todo',tag:'Design'},
+      {id:uid(),projectId:pid,title:'Build Vertical Slice level: Overgrown Atrium',owner:'Jules — Level Design',col:'inprogress',tag:'Level'},
+      {id:uid(),projectId:pid,title:'Implement watering / growth system v2',owner:'Priya — Engineering',col:'inprogress',tag:'Engineering'},
+      {id:uid(),projectId:pid,title:'Art pass: mech walker animations',owner:'Theo — Art',col:'review',tag:'Art'},
+      {id:uid(),projectId:pid,title:'Audio mix for garden ambience',owner:'Sam — Audio',col:'review',tag:'Audio'},
+      {id:uid(),projectId:pid,title:'Prototype: core planting loop',owner:'Priya — Engineering',col:'done',tag:'Engineering'},
+      {id:uid(),projectId:pid,title:'Greybox all 3 prototype arenas',owner:'Jules — Level Design',col:'done',tag:'Level'},
+      {id:uid(),projectId:pid,title:'Controls & camera feel pass',owner:'Mina — Design',col:'done',tag:'Design'}
+    ],
+    builds:[
+      {id:uid(),projectId:pid,version:'VS 0.4.1',date:'2026-12-02',status:'In QA',notes:'Atrium playable end-to-end. Known blocker: deep-water crash (see Bugs).'},
+      {id:uid(),projectId:pid,version:'VS 0.3.0',date:'2026-11-14',status:'Playtested',notes:'Internal playtest — planting loop scored 4/5 on “cozy”. Superseded by 0.4.1.'}
+    ],
+    bugs:[
+      {id:uid(),projectId:pid,title:'Crash when watering mech enters deep water in Atrium',severity:'blocker',status:'Open',area:'Atrium / Systems'},
+      {id:uid(),projectId:pid,title:'Save corrupts if player quits during growth tick',severity:'critical',status:'Open',area:'Save system'},
+      {id:uid(),projectId:pid,title:'Walker mech pathfinding stalls on greenhouse stairs',severity:'major',status:'Open',area:'AI / Navigation'},
+      {id:uid(),projectId:pid,title:'Seed shop UI text clips on ultrawide monitors',severity:'minor',status:'Open',area:'UI'}
+    ],
+    decisions:[
+      {id:uid(),projectId:pid,title:'Cut third playable biome from Vertical Slice',date:'2026-11-20',notes:'Decision: Ship VS with Atrium + Greenhouse only. Why: protects Dec 18 date and QA bandwidth; third biome moves to Alpha. Revisit after VS sign-off.'}
+    ]
+  }
+}
+var KEY='gpt-web-v1';
+var data;
+try{ data=JSON.parse(localStorage.getItem(KEY))||seed(); }catch(e){ data=seed(); }
+function save(){ localStorage.setItem(KEY,JSON.stringify(data)); document.getElementById('saveNote').textContent='Saved just now • in this browser'; }
+function cur(){ return data.projects.find(function(p){return p.id===data.current})||data.projects[0]; }
+function fmt(d){ if(!d) return '—'; try{return new Date(d+'T12:00:00').toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}catch(e){return d} }
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function byProj(arr){ return arr.filter(function(x){return x.projectId===data.current}) }
+
+/* Theme */
+function setTheme(t){ document.documentElement.setAttribute('data-theme',t); localStorage.setItem('gpt-theme',t); document.querySelectorAll('[data-theme-btn]').forEach(function(b){b.classList.toggle('active',b.getAttribute('data-theme-btn')===t)}); }
+document.querySelectorAll('[data-theme-btn]').forEach(function(b){ b.addEventListener('click',function(){setTheme(b.getAttribute('data-theme-btn'))}) });
+setTheme(localStorage.getItem('gpt-theme')||'saas');
+
+function render(){
+  var p=cur(); if(!p){document.getElementById('projTitle').textContent='No project';return}
+  data.current=p.id;
+  document.getElementById('projTitle').textContent=p.name;
+  document.getElementById('projMeta').textContent=(p.studio||'')+' • '+(p.genre||'')+' • '+(p.platform||'')+' • Target release: '+fmt(p.release)+' • Phase: '+(p.phase||'—');
+  var sel=document.getElementById('projectSel'); sel.innerHTML=data.projects.map(function(x){return '<option value="'+x.id+'" '+(x.id===p.id?'selected':'')+'>'+esc(x.name)+'</option>'}).join('');
+  var miles=byProj(data.milestones), tasks=byProj(data.tasks), bugs=byProj(data.bugs).filter(function(b){return b.status!=='Fixed'&&b.status!=='Verified'}), builds=byProj(data.builds);
+  var doneM=miles.filter(function(m){return m.status==='done'}).length;
+  var doneT=tasks.filter(function(t){return t.col==='done'}).length;
+  var blockers=bugs.filter(function(b){return b.severity==='blocker'}).length;
+  var days='—'; if(p.release){ days=Math.ceil((new Date(p.release+'T12:00:00')-new Date())/86400000); }
+  document.getElementById('stats').innerHTML=
+    stat('Milestones',doneM+' / '+miles.length, (miles.find(function(m){return m.status==='in-progress'})||{}).name ? 'Next: '+esc((miles.find(function(m){return m.status==='in-progress'})).name)+' • '+fmt((miles.find(function(m){return m.status==='in-progress'})).due) : 'Keep shipping')+
+    stat('Tasks done',doneT+' / '+tasks.length, tasks.length? Math.round(doneT/tasks.length*100)+'% complete across 5 columns':'No tasks yet')+
+    stat('Open bugs',bugs.length, blockers? blockers+' blocker — fix first':'No blockers 🎉')+
+    stat('Latest build', builds.length?esc(builds[0].version):'—', builds.length? esc(builds[0].status)+' • '+fmt(builds[0].date)+' • Release in '+days+' days':'No builds logged');
+  function stat(l,v,s){return '<div class="stat"><small>'+l+'</small><strong>'+v+'</strong><span>'+s+'</span></div>'}
+  // milestones
+  var pct=miles.length?Math.round(doneM/miles.length*100):0;
+  document.getElementById('mileLabel').textContent=doneM+' of '+miles.length+' milestones complete';
+  document.getElementById('milePct').textContent=pct+'%';
+  document.getElementById('mileBar').style.width=pct+'%';
+  document.getElementById('milestones').innerHTML=miles.length? miles.map(function(m){
+    return '<div class="mile '+(m.status==='done'?'done':m.status==='in-progress'?'active':'')+'"><div class="dot">'+(m.status==='done'?'✓':m.status==='in-progress'?'●':'○')+'</div><div style="flex:1"><b>'+esc(m.name)+'</b> <span class="pill">'+esc(m.status)+'</span><div class="meta">Due '+fmt(m.due)+' — '+esc(m.notes||'')+'</div><div class="actions"><button class="iconBtn" onclick="editItem(\'milestone\',\''+m.id+'\')">Edit</button><button class="iconBtn" onclick="cycleMile(\''+m.id+'\')">Advance status</button><button class="iconBtn" onclick="delItem(\'milestones\',\''+m.id+'\')">Delete</button></div></div></div>'
+  }).join('') : '<div class="empty">No milestones yet.</div>';
+  // board
+  document.getElementById('board').innerHTML=COLS.map(function(c){
+    var ct=tasks.filter(function(t){return t.col===c.id});
+    return '<div class="col" data-col="'+c.id+'"><h3>'+c.label+' <span>'+ct.length+'</span></h3>'+(ct.length? ct.map(function(t){
+      return '<div class="task" draggable="true" data-task="'+t.id+'"><b>'+esc(t.title)+'</b><div class="meta">'+esc(t.owner||'Unassigned')+' • '+esc(t.tag||'Task')+'</div><div class="actions"><button class="iconBtn" onclick="moveTask(\''+t.id+'\',-1)">← Move</button><button class="iconBtn" onclick="moveTask(\''+t.id+'\',1)">Move →</button><button class="iconBtn" onclick="editItem(\'task\',\''+t.id+'\')">Edit</button></div></div>'
+    }).join('') : '<div class="empty">Empty</div>')+'</div>'
+  }).join('');
+  // drag
+  document.querySelectorAll('.task').forEach(function(el){
+    el.addEventListener('dragstart',function(e){e.dataTransfer.setData('text/plain',el.getAttribute('data-task'))});
+  });
+  document.querySelectorAll('.col').forEach(function(col){
+    col.addEventListener('dragover',function(e){e.preventDefault()});
+    col.addEventListener('drop',function(e){e.preventDefault();var id=e.dataTransfer.getData('text/plain');var t=data.tasks.find(function(x){return x.id===id});if(t){t.col=col.getAttribute('data-col');save();render();}});
+  });
+  // builds
+  document.getElementById('builds').innerHTML=builds.length? builds.map(function(b){
+    return '<div class="rowItem"><div><b style="font-family:var(--mono)">'+esc(b.version)+'</b> <span class="pill">'+esc(b.status)+'</span><div class="meta">'+fmt(b.date)+' — '+esc(b.notes||'')+'</div><div class="actions"><button class="iconBtn" onclick="editItem(\'build\',\''+b.id+'\')">Edit</button><button class="iconBtn" onclick="delItem(\'builds\',\''+b.id+'\')">Delete</button></div></div></div>'
+  }).join('') : '<div class="empty">No builds yet.</div>';
+  // bugs sorted by severity
+  var sorted=byProj(data.bugs).slice().sort(function(a,b){return SEV.indexOf(a.severity)-SEV.indexOf(b.severity)});
+  document.getElementById('bugs').innerHTML=sorted.length? sorted.map(function(b){
+    return '<div class="rowItem"><div><span class="pill '+b.severity+'">'+b.severity+'</span> <b>'+esc(b.title)+'</b><div class="meta">'+esc(b.area||'')+' • '+esc(b.status)+'</div><div class="actions"><button class="iconBtn" onclick="editItem(\'bug\',\''+b.id+'\')">Edit</button><button class="iconBtn" onclick="delItem(\'bugs\',\''+b.id+'\')">Delete</button></div></div></div>'
+  }).join('') : '<div class="empty">No bugs logged. Enjoy it while it lasts.</div>';
+  // decisions
+  var decs=byProj(data.decisions);
+  document.getElementById('decisions').innerHTML=decs.length? decs.map(function(d){
+    return '<div class="rowItem"><div><b>'+esc(d.title)+'</b><div class="meta">'+fmt(d.date)+' — '+esc(d.notes||'')+'</div><div class="actions"><button class="iconBtn" onclick="editItem(\'decision\',\''+d.id+'\')">Edit</button><button class="iconBtn" onclick="delItem(\'decisions\',\''+d.id+'\')">Delete</button></div></div></div>'
+  }).join('') : '<div class="empty">No decisions logged yet.</div>';
+}
+window.moveTask=function(id,dir){ var t=data.tasks.find(function(x){return x.id===id}); var i=COLS.findIndex(function(c){return c.id===t.col}); var n=Math.min(COLS.length-1,Math.max(0,i+dir)); t.col=COLS[n].id; save(); render(); }
+window.cycleMile=function(id){ var m=data.milestones.find(function(x){return x.id===id}); m.status=m.status==='done'?'upcoming':m.status==='in-progress'?'done':'in-progress'; save(); render(); }
+var pendingConfirm=null;
+function askConfirm(msg,fn){ pendingConfirm=fn; document.getElementById('confirmMsg').textContent=msg; document.getElementById('confirmBar').style.display='flex'; }
+window.delItem=function(coll,id){ askConfirm('Delete this item? This cannot be undone.',function(){ data[coll]=data[coll].filter(function(x){return x.id!==id}); save(); render(); }); }
+
+/* Modal CRUD */
+var dlg=document.getElementById('dlg'), fieldsEl=document.getElementById('dlgFields'), currentEdit=null;
+var SCHEMAS={
+  project:{title:'Project',fields:[['name','Project name','text'],['studio','Studio','text'],['genre','Genre / description','text'],['platform','Platforms','text'],['release','Target release','date'],['phase','Current phase','text']]},
+  milestone:{title:'Milestone',fields:[['name','Name','text'],['due','Due date','date'],['status','Status (done / in-progress / upcoming)','text'],['notes','Notes','textarea']]},
+  task:{title:'Task',fields:[['title','Title','text'],['owner','Owner','text'],['tag','Discipline / tag','text'],['col','Column (backlog / todo / inprogress / review / done)','text']]},
+  build:{title:'Build',fields:[['version','Version','text'],['date','Date','date'],['status','Status (In QA / Playtested / Released)','text'],['notes','Notes','textarea']]},
+  bug:{title:'Bug',fields:[['title','Title','text'],['severity','Severity (blocker / critical / major / minor)','text'],['status','Status (Open / Fixed / Verified)','text'],['area','Area','text']]},
+  decision:{title:'Decision',fields:[['title','Title','text'],['date','Date','date'],['notes','Decision & rationale','textarea']]}
+};
+var COLL={milestone:'milestones',task:'tasks',build:'builds',bug:'bugs',decision:'decisions',project:'projects'};
+function openForm(type,obj){
+  currentEdit={type:type,id:obj?obj.id:null};
+  document.getElementById('dlgTitle').textContent=(obj?'Edit ':'Add ')+SCHEMAS[type].title;
+  fieldsEl.innerHTML=SCHEMAS[type].fields.map(function(f){
+    var v=obj? (obj[f[0]]||'') : (f[0]==='date'?'2026-12-18': f[0]==='status'&&type==='milestone'?'upcoming': f[0]==='col'?'todo': f[0]==='severity'?'major': f[0]==='status'&&type==='bug'?'Open': f[0]==='status'&&type==='build'?'In QA':'');
+    if(f[2]==='textarea') return '<div class="field"><label>'+f[1]+'</label><textarea name="'+f[0]+'" rows="3">'+esc(v)+'</textarea></div>';
+    return '<div class="field"><label>'+f[1]+'</label><input name="'+f[0]+'" type="'+f[2]+'" value="'+esc(v)+'"></div>';
+  }).join('');
+  dlg.showModal();
+}
+window.editItem=function(type,id){ var coll=COLL[type]; var obj=data[coll].find(function(x){return x.id===id}); openForm(type,obj); }
+document.querySelectorAll('[data-add]').forEach(function(b){ b.addEventListener('click',function(){openForm(b.getAttribute('data-add'),null)}) });
+document.getElementById('addProjectBtn').addEventListener('click',function(){openForm('project',null)});
+document.getElementById('editProjectBtn').addEventListener('click',function(){openForm('project',cur())});
+document.getElementById('projectSel').addEventListener('change',function(e){data.current=e.target.value;save();render();});
+document.getElementById('resetBtn').addEventListener('click',function(){ askConfirm('Reset everything to the Mecha Garden demo? Your edits will be replaced.',function(){data=seed();save();render();}); });
+document.getElementById('confirmYes').addEventListener('click',function(){ document.getElementById('confirmBar').style.display='none'; if(pendingConfirm){var f=pendingConfirm;pendingConfirm=null;f();} });
+document.getElementById('confirmNo').addEventListener('click',function(){ document.getElementById('confirmBar').style.display='none'; pendingConfirm=null; });
+document.getElementById('dlgForm').addEventListener('submit',function(e){
+  // dialog submit via Save button
+});
+document.getElementById('dlgSave').addEventListener('click',function(e){
+  e.preventDefault();
+  var fd={}; fieldsEl.querySelectorAll('input,textarea,select').forEach(function(el){fd[el.name]=el.value.trim()});
+  var type=currentEdit.type, coll=COLL[type];
+  if(type==='task' && fd.col) fd.col=fd.col.toLowerCase().replace(/\s/g,'').replace('in-progress','inprogress');
+  if(type==='bug' && fd.severity) fd.severity=fd.severity.toLowerCase();
+  if(currentEdit.id){
+    var obj=data[coll].find(function(x){return x.id===currentEdit.id}); Object.assign(obj,fd);
+    if(type==='project'){ /* stay */ }
+  } else {
+    var nobj=Object.assign({id:uid(),projectId:data.current},fd);
+    if(type==='project'){ nobj.id=uid(); nobj.projectId=undefined; data.projects.push(nobj); data.current=nobj.id; }
+    else data[coll].push(nobj);
+    // keep builds newest first-ish: sort by date desc
+    if(type==='build'){ data.builds.sort(function(a,b){return (b.date||'').localeCompare(a.date||'')}); }
+  }
+  save(); dlg.close(); render();
+});
+save(); render();
+</script>
+</div>
+</body>
+</html>
